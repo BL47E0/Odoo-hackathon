@@ -1,0 +1,584 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap");
+
+/* =========================
+   LOGIN / SIGNUP PAGE
+
+   Token system:
+   ink      #101C30  (deep navy-ink, brand panel)
+   amber    #E3A23D  (badge/accent — replaces the
+                       purple used elsewhere, on
+                       purpose, to feel earned by an
+                       ID-badge / punch-clock concept)
+   paper    #FBF8F2  (warm card surface, right panel)
+   moss     #2F6F5E  (secondary / success accent)
+   clay     #D96C4F  (error / destructive accent)
+   ink-60   #4B5568  (muted text on paper)
+========================= */
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  background: #101c30;
+  color: #20242d;
+}
+
+/* =========================
+   LEFT BRAND PANEL
+========================= */
+
+.login-brand {
+  width: 46%;
+  min-width: 440px;
+  min-height: 100vh;
+  background: #101c30;
+  color: #ffffff;
+  padding: 40px 48px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-brand::before {
+  content: "";
+  position: absolute;
+  width: 560px;
+  height: 560px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(227, 162, 61, 0.26) 0%,
+    rgba(227, 162, 61, 0) 70%
+  );
+  top: -200px;
+  right: -240px;
+  pointer-events: none;
+}
+
+.login-brand-top .logo {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.login-brand-top .logo-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #e3a23d;
+  color: #101c30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 21px;
+  font-weight: 800;
+}
+
+.login-brand-top .logo h2 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: -0.5px;
+}
+
+.login-brand-top .logo span {
+  display: block;
+  margin-top: 2px;
+  color: #8f95a8;
+  font-size: 10px;
+}
+
+.login-brand-body {
+  margin-top: auto;
+  margin-bottom: auto;
+  padding-top: 44px;
+  max-width: 420px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- signature element: ID badge with barcode ---- */
+
+.badge-card {
+  background: #16233a;
+  border: 1px solid #26314a;
+  border-radius: 14px;
+  padding: 18px 18px 16px;
+  margin-bottom: 30px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+}
+
+.badge-stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #e3a23d, #f0c27b);
+}
+
+.badge-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.badge-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #e3a23d;
+  color: #101c30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.badge-id {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.badge-id span {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: #7d8399;
+  font-weight: 700;
+}
+
+.badge-id strong {
+  font-size: 14px;
+  letter-spacing: 0.3px;
+}
+
+.badge-barcode {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  margin-top: 16px;
+  height: 26px;
+  opacity: 0.85;
+}
+
+.badge-barcode span {
+  width: 2px;
+  background: #e3a23d;
+  border-radius: 1px;
+}
+
+.login-brand-body h1 {
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 600;
+  font-size: 32px;
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+  margin: 0 0 14px;
+}
+
+.login-brand-body h1 span {
+  color: #e3a23d;
+  font-style: italic;
+}
+
+.login-brand-body p {
+  color: #a4a9ba;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.brand-stats {
+  display: flex;
+  gap: 28px;
+  margin-top: 32px;
+  padding-top: 26px;
+  border-top: 1px solid #26314a;
+}
+
+.brand-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.brand-stat strong {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 20px;
+  letter-spacing: -0.2px;
+  color: #e3a23d;
+}
+
+.brand-stat span {
+  font-size: 10px;
+  color: #7d8399;
+}
+
+.login-brand-footer {
+  position: relative;
+  z-index: 1;
+  color: #5c6178;
+  font-size: 10px;
+}
+
+/* =========================
+   PERFORATED STUB DIVIDER
+========================= */
+
+.stub-divider {
+  width: 1px;
+  min-height: 100vh;
+  background: transparent;
+  border-left: 2px dashed #2b3652;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  position: relative;
+}
+
+.stub-divider span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #f6f7fb;
+  margin-left: -8px;
+}
+
+/* =========================
+   RIGHT FORM PANEL
+========================= */
+
+.login-form-panel {
+  flex: 1;
+  background: #fbf8f2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+.login-form-panel .mobile-logo {
+  display: none;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 380px;
+}
+
+/* ---- tab switcher ---- */
+
+.mode-tabs {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #f0ebe0;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 28px;
+}
+
+.mode-tabs button {
+  position: relative;
+  z-index: 1;
+  border: none;
+  background: transparent;
+  padding: 10px 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #7c8194;
+  border-radius: 7px;
+  transition: color 0.2s ease;
+}
+
+.mode-tabs button.active {
+  color: #101c30;
+}
+
+.tab-indicator {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  height: calc(100% - 8px);
+  background: #ffffff;
+  border-radius: 7px;
+  box-shadow: 0 3px 8px rgba(16, 28, 48, 0.1);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab-indicator.right {
+  transform: translateX(100%);
+}
+
+.login-eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #b9782a;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.login-title {
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 600;
+  margin: 0 0 6px;
+  font-size: 25px;
+  letter-spacing: -0.3px;
+  color: #171d2b;
+}
+
+.login-subtitle {
+  margin: 0 0 26px;
+  font-size: 12px;
+  color: #8a8f9e;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.field > span {
+  font-size: 11px;
+  font-weight: 600;
+  color: #494e5f;
+}
+
+.field input {
+  height: 42px;
+  border: 1px solid #e4ded0;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 0 13px;
+  font-size: 13px;
+  color: #20242d;
+  outline: none;
+  transition: 0.15s ease;
+}
+
+.field input:focus-visible {
+  border-color: #e3a23d;
+  box-shadow: 0 0 0 3px rgba(227, 162, 61, 0.2);
+}
+
+.password-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input input {
+  width: 100%;
+  padding-right: 54px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 8px;
+  border: none;
+  background: transparent;
+  color: #b9782a;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 6px 8px;
+}
+
+.field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: -2px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: #666b7a;
+}
+
+.checkbox-label input {
+  width: 14px;
+  height: 14px;
+  accent-color: #e3a23d;
+}
+
+.terms-row {
+  align-items: flex-start;
+  line-height: 1.5;
+}
+
+.terms-row input {
+  margin-top: 2px;
+}
+
+.terms-row a {
+  color: #b9782a;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.terms-row a:hover {
+  text-decoration: underline;
+}
+
+.forgot-link {
+  font-size: 11px;
+  color: #b9782a;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+.login-submit {
+  border: none;
+  background: #101c30;
+  color: #ffffff;
+  padding: 12px 17px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 6px;
+  box-shadow: 0 3px 10px rgba(16, 28, 48, 0.22);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.login-submit:hover {
+  background: #182a47;
+  transform: translateY(-1px);
+}
+
+.login-submit:focus-visible,
+.toggle-password:focus-visible,
+.forgot-link:focus-visible,
+.sso-button:focus-visible,
+.mode-tabs button:focus-visible {
+  outline: 2px solid #e3a23d;
+  outline-offset: 2px;
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 26px 0 18px;
+  color: #b3ab98;
+  font-size: 10px;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e9e2d3;
+}
+
+.sso-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.sso-button {
+  height: 40px;
+  border: 1px solid #e4ded0;
+  background: white;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #494e5f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.sso-button:hover {
+  background: #fbf8f2;
+  border-color: #e3a23d;
+}
+
+.sso-icon {
+  font-size: 12px;
+  color: #b9782a;
+}
+
+.signup-hint {
+  margin: 22px 0 0;
+  text-align: center;
+  font-size: 11px;
+  color: #8a8f9e;
+}
+
+.signup-hint a {
+  color: #b9782a;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.signup-hint a:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+  .login-brand,
+  .stub-divider {
+    display: none;
+  }
+
+  .login-form-panel .mobile-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 34px;
+  }
+
+  .login-form-panel .mobile-logo .logo-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: #e3a23d;
+    color: #101c30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    font-weight: 800;
+  }
+
+  .login-form-panel .mobile-logo strong {
+    font-size: 18px;
+    letter-spacing: -0.4px;
+    color: #20242d;
+  }
+}
+
+@media (max-width: 460px) {
+  .login-form-panel {
+    padding: 28px 18px;
+  }
+}

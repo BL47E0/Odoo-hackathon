@@ -775,6 +775,57 @@ const updateSalaryStructure = async (req, res) => {
     }
 };
 
+const getDashboardStats = async (req, res) => {
+    try {
+        const totalEmployees = await prisma.employee.count();
+
+        const employeesByDepartment = await prisma.employee.groupBy({
+            by: ["department"],
+            _count: {
+                id: true
+            }
+        });
+
+        const salaries = await prisma.salaryStructure.findMany({
+            select: {
+                baseSalary: true
+            }
+        });
+
+        const totalPayroll = salaries.reduce(
+            (total, salary) => total + Number(salary.baseSalary),
+            0
+        );
+
+        const averageSalary =
+            salaries.length > 0
+                ? totalPayroll / salaries.length
+                : 0;
+
+        const departmentBreakdown = employeesByDepartment.map((item) => ({
+            department: item.department || "Unassigned",
+            employeeCount: item._count.id
+        }));
+
+        res.json({
+            success: true,
+            dashboard: {
+                totalEmployees,
+                totalPayroll,
+                averageSalary,
+                departmentBreakdown
+            }
+        });
+
+    } catch (error) {
+        console.error("Error fetching HR dashboard:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch HR dashboard"
+        });
+    }
+};
 
 export {
     getEmployees,
@@ -785,5 +836,6 @@ export {
     updateSalaryStructure,
     addSalaryComponent,
     getSalaryStructure,
-    getPayroll
+    getPayroll,
+    getDashboardStats
 };

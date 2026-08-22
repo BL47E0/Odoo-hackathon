@@ -8,7 +8,8 @@ import {
     updateSalaryStructure,
     addSalaryComponent,
     getSalaryStructure,
-    getPayroll
+    getPayroll,
+    getDashboardStats
 } from "../controllers/hrController.js";
 
 const router = express.Router();
@@ -25,4 +26,5 @@ router.post(
 router.get("/employees/:id/salary", getSalaryStructure);
 router.get("/employees/:id/payroll", getPayroll);
 router.put("/employees/:id/salary", updateSalaryStructure);
+router.get("/dashboard", getDashboardStats);
 export default router;

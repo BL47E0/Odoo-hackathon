@@ -206,8 +206,83 @@ const createEmployee = async (req, res) => {
     }
 };
 
+const updateEmployee = async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (Number.isNaN(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid employee ID"
+            });
+        }
+
+        const {
+            firstName,
+            lastName,
+            phone,
+            address,
+            department,
+            designation,
+            company,
+            joiningDate
+        } = req.body;
+
+        // Check that the employee exists
+        const existingEmployee = await prisma.employee.findUnique({
+            where: { id }
+        });
+
+        if (!existingEmployee) {
+            return res.status(404).json({
+                success: false,
+                message: "Employee not found"
+            });
+        }
+
+        const employee = await prisma.employee.update({
+            where: { id },
+            data: {
+                ...(firstName !== undefined && { firstName }),
+                ...(lastName !== undefined && { lastName }),
+                ...(phone !== undefined && { phone }),
+                ...(address !== undefined && { address }),
+                ...(department !== undefined && { department }),
+                ...(designation !== undefined && { designation }),
+                ...(company !== undefined && { company }),
+                ...(joiningDate !== undefined && {
+                    joiningDate: joiningDate ? new Date(joiningDate) : null
+                })
+            },
+            include: {
+                user: {
+                    select: {
+                        email: true,
+                        role: true
+                    }
+                }
+            }
+        });
+
+        res.json({
+            success: true,
+            message: "Employee updated successfully",
+            employee
+        });
+
+    } catch (error) {
+        console.error("Error updating employee:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to update employee"
+        });
+    }
+};
+
 export {
     getEmployees,
     getEmployeeById,
-    createEmployee
+    createEmployee,
+    updateEmployee
 };

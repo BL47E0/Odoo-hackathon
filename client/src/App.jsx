@@ -1,7 +1,9 @@
 import { useState } from "react";
 import "./App.css";
+import Login from "./Login";
 
 function App() {
+  const [page, setPage] = useState("login"); // "login" | "dashboard"
   const [activeMenu, setActiveMenu] = useState("Dashboard");
   const [checkedIn, setCheckedIn] = useState(false);
 
@@ -41,6 +43,11 @@ function App() {
     { initials: "MP", name: "Meera Patel", role: "Product Manager" },
     { initials: "VK", name: "Vikram Singh", role: "Software Engineer" },
   ];
+
+  // Show Login until the user signs in / creates an account
+  if (page === "login") {
+    return <Login onAuthSuccess={() => setPage("dashboard")} />;
+  }
 
   return (
     <div className="app">
@@ -93,7 +100,14 @@ function App() {
             <strong>Punit</strong>
             <span>Employee</span>
           </div>
-          <span className="profile-more">•••</span>
+          <span
+            className="profile-more"
+            onClick={() => setPage("login")}
+            style={{ cursor: "pointer" }}
+            title="Sign out"
+          >
+            •••
+          </span>
         </div>
 
       </aside>

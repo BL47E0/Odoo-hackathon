@@ -1,7 +1,10 @@
 import express from "express";
-import { login } from "../controllers/authController.js";
 import { authenticate } from "../middleware/authMiddleware.js";
 import { authorize } from "../middleware/roleMiddleware.js";
+import {
+    login,
+    changePassword
+} from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -14,6 +17,7 @@ router.get("/me", authenticate, (req, res) => {
         user: req.user
     });
 });
+
 router.get(
     "/hr-test",
     authenticate,
@@ -26,5 +30,7 @@ router.get(
         });
     }
 );
+
+router.put("/change-password", authenticate, changePassword);
 
 export default router;

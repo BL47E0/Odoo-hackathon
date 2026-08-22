@@ -3,7 +3,10 @@ import {
     getEmployees,
     getEmployeeById,
     createEmployee,
-    updateEmployee
+    updateEmployee,
+    createSalaryStructure,
+    addSalaryComponent,
+    getSalaryStructure
 } from "../controllers/hrController.js";
 
 const router = express.Router();
@@ -12,4 +15,10 @@ router.get("/employees", getEmployees);
 router.get("/employees/:id", getEmployeeById);
 router.post("/employees", createEmployee);
 router.put("/employees/:id", updateEmployee);
+router.post("/employees/:id/salary", createSalaryStructure);
+router.post(
+    "/employees/:id/salary/components",
+    addSalaryComponent
+);
+router.get("/employees/:id/salary", getSalaryStructure);
 export default router;

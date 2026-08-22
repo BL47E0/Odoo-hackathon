@@ -587,6 +587,117 @@ const getSalaryStructure = async (req, res) => {
     }
 };
 
+const getPayroll = async (req, res) => {
+    try {
+        const employeeId = Number(req.params.id);
+
+        if (Number.isNaN(employeeId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid employee ID"
+            });
+        }
+
+        const salary = await prisma.salaryStructure.findUnique({
+            where: {
+                employeeId
+            },
+            include: {
+                employee: {
+                    select: {
+                        employeeId: true,
+                        firstName: true,
+                        lastName: true,
+                        department: true,
+                        designation: true
+                    }
+                },
+                components: {
+                    include: {
+                        component: true
+                    }
+                }
+            }
+        });
+
+        if (!salary) {
+            return res.status(404).json({
+                success: false,
+                message: "Salary structure not found"
+            });
+        }
+
+        const baseSalary = Number(salary.baseSalary);
+
+        const earnings = [];
+        const deductions = [];
+
+        for (const item of salary.components) {
+            const value = Number(item.value);
+
+            const amount =
+                item.component.calculationType === "PERCENTAGE"
+                    ? (baseSalary * value) / 100
+                    : value;
+
+            const component = {
+                id: item.id,
+                name: item.component.name,
+                calculationType: item.component.calculationType,
+                value,
+                amount
+            };
+
+            // For now, these component names are treated as deductions.
+            const isDeduction = [
+                "PF",
+                "TAX",
+                "DEDUCTION"
+            ].includes(item.component.name.toUpperCase());
+
+            if (isDeduction) {
+                deductions.push(component);
+            } else {
+                earnings.push(component);
+            }
+        }
+
+        const totalEarnings = earnings.reduce(
+            (total, component) => total + component.amount,
+            0
+        );
+
+        const totalDeductions = deductions.reduce(
+            (total, component) => total + component.amount,
+            0
+        );
+
+        const grossSalary = baseSalary + totalEarnings;
+        const netSalary = grossSalary - totalDeductions;
+
+        res.json({
+            success: true,
+            payroll: {
+                employee: salary.employee,
+                baseSalary,
+                earnings,
+                totalEarnings,
+                grossSalary,
+                deductions,
+                totalDeductions,
+                netSalary
+            }
+        });
+
+    } catch (error) {
+        console.error("Error calculating payroll:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to calculate payroll"
+        });
+    }
+};
 
 export {
     getEmployees,
@@ -595,5 +706,6 @@ export {
     updateEmployee,
     createSalaryStructure,
     addSalaryComponent,
-    getSalaryStructure
+    getSalaryStructure,
+    getPayroll
 };

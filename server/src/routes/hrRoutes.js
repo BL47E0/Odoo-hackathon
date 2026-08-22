@@ -5,6 +5,7 @@ import {
     createEmployee,
     updateEmployee,
     createSalaryStructure,
+    updateSalaryStructure,
     addSalaryComponent,
     getSalaryStructure,
     getPayroll
@@ -23,4 +24,5 @@ router.post(
 );
 router.get("/employees/:id/salary", getSalaryStructure);
 router.get("/employees/:id/payroll", getPayroll);
+router.put("/employees/:id/salary", updateSalaryStructure);
 export default router;

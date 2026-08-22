@@ -699,12 +699,90 @@ const getPayroll = async (req, res) => {
     }
 };
 
+
+
+const updateSalaryStructure = async (req, res) => {
+    try {
+        const employeeId = Number(req.params.id);
+        const { baseSalary } = req.body;
+
+        if (Number.isNaN(employeeId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid employee ID"
+            });
+        }
+
+        if (baseSalary === undefined || Number(baseSalary) <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Base salary must be greater than 0"
+            });
+        }
+
+        const salary = await prisma.salaryStructure.findUnique({
+            where: {
+                employeeId
+            }
+        });
+
+        if (!salary) {
+            return res.status(404).json({
+                success: false,
+                message: "Salary structure not found"
+            });
+        }
+
+        const updatedSalary = await prisma.salaryStructure.update({
+            where: {
+                employeeId
+            },
+            data: {
+                baseSalary: Number(baseSalary),
+                effectiveFrom: new Date()
+            },
+            include: {
+                employee: {
+                    select: {
+                        employeeId: true,
+                        firstName: true,
+                        lastName: true,
+                        department: true,
+                        designation: true
+                    }
+                },
+                components: {
+                    include: {
+                        component: true
+                    }
+                }
+            }
+        });
+
+        res.json({
+            success: true,
+            message: "Salary structure updated successfully",
+            salary: updatedSalary
+        });
+
+    } catch (error) {
+        console.error("Error updating salary structure:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to update salary structure"
+        });
+    }
+};
+
+
 export {
     getEmployees,
     getEmployeeById,
     createEmployee,
     updateEmployee,
     createSalaryStructure,
+    updateSalaryStructure,
     addSalaryComponent,
     getSalaryStructure,
     getPayroll

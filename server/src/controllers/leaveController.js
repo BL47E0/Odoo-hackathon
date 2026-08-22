@@ -383,11 +383,182 @@ const getLeaveRequests = async (req, res) => {
     }
 };
 
+const getPendingLeaveRequests = async (req, res) => {
+    try {
+        const requests = await prisma.leaveRequest.findMany({
+            where: {
+                status: "PENDING"
+            },
+            include: {
+                employee: {
+                    select: {
+                        id: true,
+                        employeeId: true,
+                        firstName: true,
+                        lastName: true,
+                        department: true
+                    }
+                },
+                leaveType: true
+            },
+            orderBy: {
+                createdAt: "asc"
+            }
+        });
+
+        res.json({
+            success: true,
+            requests
+        });
+
+    } catch (error) {
+        console.error("Error fetching pending leave requests:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch pending leave requests"
+        });
+    }
+};
+
+const approveLeaveRequest = async (req, res) => {
+    try {
+        const requestId = Number(req.params.id);
+
+        if (Number.isNaN(requestId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid leave request ID"
+            });
+        }
+
+        const result = await prisma.$transaction(async (tx) => {
+            const leaveRequest = await tx.leaveRequest.findUnique({
+                where: {
+                    id: requestId
+                }
+            });
+
+            if (!leaveRequest) {
+                throw new Error("LEAVE_REQUEST_NOT_FOUND");
+            }
+
+            if (leaveRequest.status !== "PENDING") {
+                throw new Error("LEAVE_REQUEST_ALREADY_PROCESSED");
+            }
+
+            const year = leaveRequest.startDate.getFullYear();
+
+            const allocation = await tx.leaveAllocation.findUnique({
+                where: {
+                    employeeId_leaveTypeId_year: {
+                        employeeId: leaveRequest.employeeId,
+                        leaveTypeId: leaveRequest.leaveTypeId,
+                        year
+                    }
+                }
+            });
+
+            if (!allocation) {
+                throw new Error("ALLOCATION_NOT_FOUND");
+            }
+
+            const remainingDays =
+                Number(allocation.allocatedDays) -
+                Number(allocation.usedDays);
+
+            const requestedDays = Number(leaveRequest.days);
+
+            if (requestedDays > remainingDays) {
+                throw new Error("INSUFFICIENT_BALANCE");
+            }
+
+            const updatedRequest = await tx.leaveRequest.update({
+                where: {
+                    id: requestId
+                },
+                data: {
+                    status: "APPROVED"
+                },
+                include: {
+                    employee: {
+                        select: {
+                            id: true,
+                            employeeId: true,
+                            firstName: true,
+                            lastName: true
+                        }
+                    },
+                    leaveType: true
+                }
+            });
+
+            await tx.leaveAllocation.update({
+                where: {
+                    id: allocation.id
+                },
+                data: {
+                    usedDays: {
+                        increment: requestedDays
+                    }
+                }
+            });
+
+            return updatedRequest;
+        });
+
+        res.json({
+            success: true,
+            message: "Leave request approved successfully",
+            leaveRequest: result
+        });
+
+    } catch (error) {
+        console.error("Error approving leave request:", error);
+
+        if (error.message === "LEAVE_REQUEST_NOT_FOUND") {
+            return res.status(404).json({
+                success: false,
+                message: "Leave request not found"
+            });
+        }
+
+        if (error.message === "LEAVE_REQUEST_ALREADY_PROCESSED") {
+            return res.status(400).json({
+                success: false,
+                message: "Leave request has already been processed"
+            });
+        }
+
+        if (error.message === "ALLOCATION_NOT_FOUND") {
+            return res.status(400).json({
+                success: false,
+                message: "Leave allocation not found"
+            });
+        }
+
+        if (error.message === "INSUFFICIENT_BALANCE") {
+            return res.status(400).json({
+                success: false,
+                message: "Insufficient leave balance"
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to approve leave request"
+        });
+    }
+};
+
+
 export {
     createLeaveType,
     getLeaveTypes,
     createLeaveAllocation,
     getLeaveAllocations,
     createLeaveRequest,
-    getLeaveRequests
+    getLeaveRequests,
+    getPendingLeaveRequests,
+    approveLeaveRequest
 };

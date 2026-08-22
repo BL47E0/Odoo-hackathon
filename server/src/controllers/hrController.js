@@ -30,4 +30,184 @@ const getEmployees = async (req, res) => {
     }
 };
 
-export { getEmployees };
+
+
+const getEmployeeById = async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (Number.isNaN(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid employee ID"
+            });
+        }
+
+        const employee = await prisma.employee.findUnique({
+            where: {
+                id
+            },
+            include: {
+                user: {
+                    select: {
+                        email: true,
+                        role: true
+                    }
+                },
+                privateInfo: true,
+                skills: true,
+                certifications: true,
+                salary: {
+                    include: {
+                        components: {
+                            include: {
+                                component: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        if (!employee) {
+            return res.status(404).json({
+                success: false,
+                message: "Employee not found"
+            });
+        }
+
+        res.json({
+            success: true,
+            employee
+        });
+
+    } catch (error) {
+        console.error("Error fetching employee:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch employee"
+        });
+    }
+};
+
+const createEmployee = async (req, res) => {
+    try {
+        const {
+            email,
+            password,
+            firstName,
+            lastName,
+            phone,
+            address,
+            department,
+            designation,
+            company,
+            joiningDate
+        } = req.body;
+
+        // Required fields
+        if (!email || !password || !firstName || !lastName) {
+            return res.status(400).json({
+                success: false,
+                message: "Email, password, first name and last name are required"
+            });
+        }
+
+        // Check whether email already exists
+        const existingUser = await prisma.user.findUnique({
+            where: { email }
+        });
+
+        if (existingUser) {
+            return res.status(409).json({
+                success: false,
+                message: "Email already exists"
+            });
+        }
+
+        // Hash password
+        const bcrypt = await import("bcrypt");
+        const passwordHash = await bcrypt.hash(password, 10);
+
+        // Generate employee ID
+        const year = joiningDate
+            ? new Date(joiningDate).getFullYear()
+            : new Date().getFullYear();
+
+        const initials =
+            firstName.substring(0, 2).toUpperCase() +
+            lastName.substring(0, 2).toUpperCase();
+
+        const employeeCount = await prisma.employee.count({
+            where: {
+                joiningDate: {
+                    gte: new Date(`${year}-01-01`),
+                    lt: new Date(`${year + 1}-01-01`)
+                }
+            }
+        });
+
+        const serialNumber = String(employeeCount + 1).padStart(4, "0");
+
+        const employeeId = `${initials}${year}${serialNumber}`;
+
+        // Create User + Employee together
+        const result = await prisma.$transaction(async (tx) => {
+            const user = await tx.user.create({
+                data: {
+                    email,
+                    passwordHash,
+                    role: "EMPLOYEE"
+                }
+            });
+
+            const employee = await tx.employee.create({
+                data: {
+                    userId: user.id,
+                    employeeId,
+                    firstName,
+                    lastName,
+                    phone,
+                    address,
+                    department,
+                    designation,
+                    company,
+                    joiningDate: joiningDate
+                        ? new Date(joiningDate)
+                        : null
+                },
+                include: {
+                    user: {
+                        select: {
+                            email: true,
+                            role: true
+                        }
+                    }
+                }
+            });
+
+            return employee;
+        });
+
+        res.status(201).json({
+            success: true,
+            message: "Employee created successfully",
+            employee: result
+        });
+
+    } catch (error) {
+        console.error("Error creating employee:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to create employee"
+        });
+    }
+};
+
+export {
+    getEmployees,
+    getEmployeeById,
+    createEmployee
+};

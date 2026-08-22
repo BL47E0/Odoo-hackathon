@@ -3,6 +3,7 @@ import cors from "cors";
 
 import attendanceRoutes from "./routes/attendanceRoutes.js";
 import hrRoutes from "./routes/hrRoutes.js";
+import leaveRoutes from "./routes/leaveRoutes.js";
 
 const app = express();
 
@@ -11,6 +12,7 @@ app.use(express.json());
 
 app.use("/api/hr", hrRoutes);
 app.use("/api/attendance", attendanceRoutes);
+app.use("/api/leave", leaveRoutes);
 
 app.get("/api/health", (req, res) => {
     res.json({

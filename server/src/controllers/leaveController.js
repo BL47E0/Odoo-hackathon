@@ -551,6 +551,74 @@ const approveLeaveRequest = async (req, res) => {
     }
 };
 
+const rejectLeaveRequest = async (req, res) => {
+    try {
+        const requestId = Number(req.params.id);
+        const { adminComment } = req.body;
+
+        if (Number.isNaN(requestId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid leave request ID"
+            });
+        }
+
+        const leaveRequest = await prisma.leaveRequest.findUnique({
+            where: {
+                id: requestId
+            }
+        });
+
+        if (!leaveRequest) {
+            return res.status(404).json({
+                success: false,
+                message: "Leave request not found"
+            });
+        }
+
+        if (leaveRequest.status !== "PENDING") {
+            return res.status(400).json({
+                success: false,
+                message: "Leave request has already been processed"
+            });
+        }
+
+        const updatedRequest = await prisma.leaveRequest.update({
+            where: {
+                id: requestId
+            },
+            data: {
+                status: "REJECTED",
+                adminComment: adminComment || null
+            },
+            include: {
+                employee: {
+                    select: {
+                        id: true,
+                        employeeId: true,
+                        firstName: true,
+                        lastName: true
+                    }
+                },
+                leaveType: true
+            }
+        });
+
+        res.json({
+            success: true,
+            message: "Leave request rejected successfully",
+            leaveRequest: updatedRequest
+        });
+
+    } catch (error) {
+        console.error("Error rejecting leave request:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to reject leave request"
+        });
+    }
+};
 
 export {
     createLeaveType,
@@ -560,5 +628,6 @@ export {
     createLeaveRequest,
     getLeaveRequests,
     getPendingLeaveRequests,
-    approveLeaveRequest
+    approveLeaveRequest,
+    rejectLeaveRequest
 };
